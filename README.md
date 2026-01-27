@@ -16,12 +16,12 @@ This project is ideal for beginners to learn **file handling, structures, loops,
 ## How to Run
 1. Compile the code using a C compiler:
    ```bash
-   gcc sms.c -o sms
+   gcc StudentManagementSystem.c -o StudentManagementSystem
    
 2. Run the program:
   ```bash
-    ./sms      # Linux/Mac
-    sms.exe    # Windows
+    ./StudentManagementSystem      # Linux/Mac
+    StudentManagementSystem.exe    # Windows
 ```
 
 3. Follow the menu options to manage student records.
@@ -65,9 +65,9 @@ Enter a Number (1-6): 2
 
 ID | Name | Marks | Grade | Result
 -----------------------------------
-101 | Ali Khan | 95.00 | A | Pass
-102 | Sara Ahmed | 88.50 | B | Pass
-103 | Omar Sheikh | 72.00 | C | Pass
+101 | Ali Khan       | 95.00 | A | Pass
+102 | Sara Ahmed     | 88.50 | B | Pass
+103 | Omar Sheikh    | 72.00 | C | Pass
 ```
 
 ## Author
