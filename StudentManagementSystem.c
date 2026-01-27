@@ -60,7 +60,7 @@ void readRecord(){
 
         fprintf(fptr, "%-3d | %-20s | %6.2f | %c | %-4s\n", s[i].id, s[i].name, s[i].marks, s[i].grade, s[i].result);
 
-        if (i == 0) {   // first iteration (recommended)
+        if (i == 0) {   // Prompt for first iteration 
             char yORn;
             printf("Want to Continue adding Student Record? (y/n): ");
             scanf(" %c", &yORn);   // note the space before %c
@@ -118,6 +118,7 @@ int searchByName(){
 
     int found = 0;
 
+    // Prompt if no record found
     if (fptr == NULL) {
         printf("\nNo records found.\n");
         return 0;
@@ -145,9 +146,10 @@ int searchByName(){
     {
         char *result;
 
+        // Allows the partial search by strstr() - substring function
         result = strstr(s[j].name, search); 
         
-
+        // Print the records matching the given name
         if(result != NULL) {
             if (!found) {  // print header only once
                 printf("ID | Name | Marks | Grade | Result\n");
@@ -160,9 +162,9 @@ int searchByName(){
         j++;
     }
 
-    if (!found) {
+    // Prompt if no required record found
+    if (!found)
         printf("No matching record found.\n");
-    }
 
     fclose(fptr);
 
@@ -189,6 +191,7 @@ int searchById() {
 
     printf("\n");
 
+    // Loop to read each line of the file
     int i = 0;
     while (i < MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s",
                              &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5) {
@@ -212,9 +215,9 @@ int searchById() {
         }
     }
 
-    if (!found){
+    // Prompt if no required record found
+    if (!found)
         printf("No matching record found.\n");
-    }
 
     fclose(fptr);
 
@@ -223,6 +226,7 @@ int searchById() {
 
 int searchRecord(){
 
+    // Asking user to choose search method either by name or ID
     printf("\nChoose Search Method:\n");
     printf("1. Search By Name\n");
     printf("2. Search By ID\n\n");
