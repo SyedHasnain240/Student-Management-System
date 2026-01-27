@@ -58,7 +58,7 @@ void readRecord(){
         if(s[i].grade=='F') strcpy(s[i].result, "Fail");
         else strcpy(s[i].result, "Pass");
 
-        fprintf(fptr, "%d | %s | %f | %c | %s\n", s[i].id, s[i].name, s[i].marks, s[i].grade, s[i].result);
+        fprintf(fptr, "%-3d | %-20s | %6.2f | %c | %-4s\n", s[i].id, s[i].name, s[i].marks, s[i].grade, s[i].result);
 
         if (i == 0) {   // first iteration (recommended)
             char yORn;
@@ -92,6 +92,9 @@ void displayRecord(){
     int i = 0;
 
     while(i<MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
+        
+        int c;
+        while ((c = fgetc(fptr)) != '\n' && c != EOF);
 
         i++;
     }
@@ -100,7 +103,7 @@ void displayRecord(){
     while (j<i)
     {
 
-        printf("%d | %s | %.2f | %c | %s \n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+        printf("%-3d | %-20s | %6.2f | %c | %-4s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
 
         j++;
     }
@@ -130,6 +133,10 @@ int searchByName(){
 
     int i = 0;
     while(i<MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
+
+        int c;
+        while ((c = fgetc(fptr)) != '\n' && c != EOF);
+
         i++;
     }
 
@@ -146,7 +153,7 @@ int searchByName(){
                 printf("ID | Name | Marks | Grade | Result\n");
                 printf("----------------------------------\n");
             }
-            printf("%d | %s | %.2f | %c | %s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+            printf("%-3d | %-20s | %6.2f | %c | %-4s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
             found = 1;
         }
 
@@ -155,7 +162,6 @@ int searchByName(){
 
     if (!found) {
         printf("No matching record found.\n");
-        delay(2);
     }
 
     fclose(fptr);
@@ -186,6 +192,9 @@ int searchById() {
     int i = 0;
     while (i < MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s",
                              &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5) {
+        int c;
+        while ((c = fgetc(fptr)) != '\n' && c != EOF);
+        
         i++;
     }
 
@@ -196,7 +205,7 @@ int searchById() {
                 printf("ID | Name | Marks | Grade | Result\n");
                 printf("----------------------------------\n");
             }
-            printf("%d | %s | %.2f | %c | %s\n",
+            printf("%-3d | %-20s | %6.2f | %c | %-4s\n",
                    s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
             found = 1;
             break;  // stop after finding the exact ID
@@ -205,7 +214,6 @@ int searchById() {
 
     if (!found){
         printf("No matching record found.\n");
-        delay(2);
     }
 
     fclose(fptr);
@@ -267,16 +275,19 @@ void deleteRecord(){
     }
 
     // Read each record and copy to temp if it does NOT match the ID
-    while (fscanf(fptr, "%d | %49[^|] | %f | %c | %4s",
+    while (fscanf(fptr, "%d | %49[^|] | %f | %c | %9s",
                 &stemp.id, stemp.name, &stemp.marks, &stemp.grade, stemp.result) == 5) {
+        int c;
+        while ((c = fgetc(fptr)) != '\n' && c != EOF);
+        
         if (stemp.id == delId) {
-            printf("\nDeleting record:\n%d | %s | %.2f | %c | %s\n",
+            printf("\nDeleting record:\n%-3d | %-20s | %6.2f | %c | %-4s\n",
                 stemp.id, stemp.name, stemp.marks, stemp.grade, stemp.result);
             found = 1;  // mark that we found the record
             continue;   // skip writing this record to temp
         }
         // Write all other records to temp file
-        fprintf(temp, "%d | %s | %.2f | %c | %s\n",
+        fprintf(temp, "%-3d | %-20s | %6.2f | %c | %-4s\n",
                 stemp.id, stemp.name, stemp.marks, stemp.grade, stemp.result);
     }
 
@@ -284,8 +295,8 @@ void deleteRecord(){
     fclose(temp);
 
     if (!found) {
-        printf("\nRecord not found. Please check the ID.\n");
         delay(2);
+        printf("\nRecord not found. Please check the ID.\n");
         // Delete temp file since nothing changed
         remove("temp.txt");
         return;
@@ -294,10 +305,8 @@ void deleteRecord(){
     // Replace original file with temp file
     remove("student_records.txt");
     rename("temp.txt", "student_records.txt");
-
     delay(2);
     printf("\nRecord deleted successfully!\n");
-    delay(1);
 }
 
 void updateRecord(){
@@ -329,8 +338,11 @@ void updateRecord(){
     }
 
     // Read each record and copy to temp if it does NOT match the ID
-    while (fscanf(fptr, "%d | %49[^|] | %f | %c | %4s",
+    while (fscanf(fptr, "%d | %49[^|] | %f | %c | %9s",
                   &stemp.id, stemp.name, &stemp.marks, &stemp.grade, stemp.result) == 5) {
+
+        int c;
+        while ((c = fgetc(fptr)) != '\n' && c != EOF);
 
         if (stemp.id == updateID) {
 
@@ -367,7 +379,7 @@ void updateRecord(){
         
 
         // Write all other records to temp file
-        fprintf(temp, "%d | %s | %.2f | %c | %s\n",
+        fprintf(temp, "%-3d | %-20s | %6.2f | %c | %-4s\n",
                 stemp.id, stemp.name, stemp.marks, stemp.grade, stemp.result);
     }
 
@@ -388,8 +400,6 @@ void updateRecord(){
 
     delay(2);
     printf("\nRecord updated successfully!\n");
-    delay(1);
-
 }
 
 void menu(){
@@ -426,28 +436,33 @@ int main() {
         {
         case 1:
             readRecord();
+            delay(2);
             break;
 
         case 2:
             displayRecord();
+            delay(2);
             break;
 
         case 3:
             searchRecord();
+            delay(2);
             break;
 
         case 4:
             deleteRecord();
+            delay(2);
             break;
 
         case 5:
             updateRecord();
+            delay(2);
             break;
 
         case 6:
             delay(2);
             printf("\nExiting Program.....\n");
-            delay(1);
+            delay(2);
             return 0;
         
         default:
