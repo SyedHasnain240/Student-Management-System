@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define MAX 50
 
@@ -16,11 +17,13 @@ struct Student{
 
 struct Student s[MAX];
 
+void delay(int seconds);
+
 void readRecord(){
 
     int i=0;
 
-    fptr = fopen("SampleRecord.txt", "a");
+    fptr = fopen("student_records.txt", "a");
  
     while (1)
     {
@@ -39,14 +42,11 @@ void readRecord(){
         // remove trailing newline if exists
         s[i].name[strcspn(s[i].name, "\n")] = 0;
 
-
-        printf("Student Marks: ");
-        scanf("%f", &s[i].marks);
-
-        if (s[i].marks > 100 || s[i].marks < 0) {
-            printf("\nStudent Marks should be between 0-100: ");
+        do {
+            printf("Student Marks (0-100): ");
             scanf("%f", &s[i].marks);
-        }
+        } while(s[i].marks < 0 || s[i].marks > 100);
+
             
         if(s[i].marks > 90) s[i].grade = 'A';
         else if(s[i].marks > 80) s[i].grade = 'B';
@@ -77,7 +77,7 @@ void readRecord(){
 
 void displayRecord(){
 
-    fptr = fopen("SampleRecord.txt", "r");
+    fptr = fopen("student_records.txt", "r");
 
     if (fptr == NULL) {
         printf("No records found.\n");
@@ -109,20 +109,22 @@ void displayRecord(){
     fclose(fptr);
 }
 
-void searchByName(){
+int searchByName(){
 
-    fptr = fopen("SampleRecord.txt", "r");
+    fptr = fopen("student_records.txt", "r");
+
+    int found = 0;
 
     if (fptr == NULL) {
-        printf("No records found.\n");
-        return;
+        printf("\nNo records found.\n");
+        return 0;
     }
 
 
     printf("\nEnter Student Name to Search: ");
     char search[15];
     // fgets(search, sizeof(search), stdin);
-    scanf("%s", search);
+    scanf("%14s", search);
 
     printf("\n");
 
@@ -139,57 +141,79 @@ void searchByName(){
         result = strstr(s[j].name, search); 
         
 
-        if(result != NULL) 
-            printf("%d | %s | %f | %c | %s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+        if(result != NULL) {
+            if (!found) {  // print header only once
+                printf("ID | Name | Marks | Grade | Result\n");
+                printf("----------------------------------\n");
+            }
+            printf("%d | %s | %.2f | %c | %s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+            found = 1;
+        }
 
         j++;
     }
 
+    if (!found) {
+        printf("No matching record found.\n");
+        delay(2);
+    }
+
     fclose(fptr);
-    
+
+    return found;
 }
 
 
-void searchById(){
+int searchById() {
 
-    fptr = fopen("SampleRecord.txt", "r");
+    fptr = fopen("student_records.txt", "r");
+
+    int found = 0;
 
     if (fptr == NULL) {
-        printf("No records found.\n");
-        return;
+        printf("\nNo records found.\n");
+        return 0;
     }
 
-    printf("\nEnter Student ID to Search: ");
+    printf("\nEnter Student ID (numeric only): ");
     char search[15];
-    // fgets(search, sizeof(search), stdin);
-    scanf("%s", search);
+    scanf("%14s", search);   // safe input
+
+    int searchId = atoi(search);  // convert to integer once
 
     printf("\n");
 
     int i = 0;
-    while(i<MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
+    while (i < MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s",
+                             &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5) {
         i++;
     }
 
-    int j=0;
-    while (j<i)
-    {
-        char *result;
+    // Loop to find the matching ID
+    for (int j = 0; j < i; j++) {
+        if (s[j].id == searchId) {
+            if (!found) {  // print header only once
+                printf("ID | Name | Marks | Grade | Result\n");
+                printf("----------------------------------\n");
+            }
+            printf("%d | %s | %.2f | %c | %s\n",
+                   s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+            found = 1;
+            break;  // stop after finding the exact ID
+        }
+    }
 
-        char idStr[15];
-        sprintf(idStr, "%d", s[j].id);
-        result = strstr(idStr, search);
-
-
-        if(result != NULL) 
-            printf("%d | %s | %f | %c | %s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
-        j++;
+    if (!found){
+        printf("No matching record found.\n");
+        delay(2);
     }
 
     fclose(fptr);
+
+    return found;
 }
 
-void searchRecord(){
+int searchRecord(){
 
     printf("\nChoose Search Method:\n");
     printf("1. Search By Name\n");
@@ -202,19 +226,15 @@ void searchRecord(){
     switch (ch)
     {
     case 1:
-        searchByName();
-        break;
-    
+        return searchByName();
+
     case 2:
-        searchById();
-        break;
+        return searchById();
     
     default:
         printf("Invalid choice! \n");
-        searchRecord();
-        break;
+        return 0;
     }
-    
 
 }
 
@@ -224,19 +244,19 @@ void deleteRecord(){
     struct Student stemp;
     int delId;
     int found = 0;
-    
-    searchByName();
+
+    // Open original file for reading
+    fptr = fopen("student_records.txt", "r");
+    if (!fptr) {
+        printf("\nFile not found!\n");
+        return;
+    }
+
+    if (!searchRecord()) return;
 
     // Ask which record to delete
     printf("\nEnter the student ID which you want to delete: ");
     scanf("%d", &delId);
-
-    // Open original file for reading
-    fptr = fopen("SampleRecord.txt", "r");
-    if (!fptr) {
-        printf("File not found!\n");
-        return;
-    }
 
     // Open temporary file for writing
     temp = fopen("temp.txt", "w");
@@ -248,10 +268,10 @@ void deleteRecord(){
 
     // Read each record and copy to temp if it does NOT match the ID
     while (fscanf(fptr, "%d | %49[^|] | %f | %c | %4s",
-                  &stemp.id, stemp.name, &stemp.marks, &stemp.grade, stemp.result) == 5) {
+                &stemp.id, stemp.name, &stemp.marks, &stemp.grade, stemp.result) == 5) {
         if (stemp.id == delId) {
             printf("\nDeleting record:\n%d | %s | %.2f | %c | %s\n",
-                   stemp.id, stemp.name, stemp.marks, stemp.grade, stemp.result);
+                stemp.id, stemp.name, stemp.marks, stemp.grade, stemp.result);
             found = 1;  // mark that we found the record
             continue;   // skip writing this record to temp
         }
@@ -264,18 +284,20 @@ void deleteRecord(){
     fclose(temp);
 
     if (!found) {
-        printf("Record not found. Please check the ID.\n");
+        printf("\nRecord not found. Please check the ID.\n");
+        delay(2);
         // Delete temp file since nothing changed
         remove("temp.txt");
         return;
     }
 
     // Replace original file with temp file
-    remove("SampleRecord.txt");
-    rename("temp.txt", "SampleRecord.txt");
+    remove("student_records.txt");
+    rename("temp.txt", "student_records.txt");
 
+    delay(2);
     printf("\nRecord deleted successfully!\n");
-
+    delay(1);
 }
 
 void updateRecord(){
@@ -284,19 +306,19 @@ void updateRecord(){
     struct Student stemp;
     int updateID;
     int found = 0;
-    
-    searchByName();
+
+    // Open original file for reading
+    fptr = fopen("student_records.txt", "r");
+    if (!fptr) {
+        printf("\nFile not found!\n");
+        return;
+    }
+
+    if (!searchRecord()) return;
 
     // Ask which record to delete
     printf("\nEnter the student ID which you want to update: ");
     scanf("%d", &updateID);
-
-    // Open original file for reading
-    fptr = fopen("SampleRecord.txt", "r");
-    if (!fptr) {
-        printf("File not found!\n");
-        return;
-    }
 
     // Open temporary file for writing
     temp = fopen("temp.txt", "w");
@@ -318,17 +340,16 @@ void updateRecord(){
             stemp.id = updateID;
             printf("Student ID: %d\n", stemp.id);
 
-
             printf("Student Name: ");
-            scanf("%s", stemp.name);
-
-            printf("Student Marks: ");
-            scanf("%f", &stemp.marks);
-
-            if (stemp.marks > 100 || stemp.marks < 0) {
-                printf("\nStudent Marks should be between 0-100: ");
+            scanf(" "); // consume leftover newline
+            fgets(stemp.name, sizeof(stemp.name), stdin);
+            stemp.name[strcspn(stemp.name, "\n")] = 0;
+            
+            do {
+                printf("Student Marks (0-100): ");
                 scanf("%f", &stemp.marks);
-            }
+            } while(stemp.marks < 0 || stemp.marks > 100);
+
             
             if(stemp.marks > 90) stemp.grade = 'A';
             else if(stemp.marks > 80) stemp.grade = 'B';
@@ -341,7 +362,6 @@ void updateRecord(){
             else strcpy(stemp.result, "Pass");
 
             found = 1;  // mark that we found the record
-            // continue;   // skip writing this record to temp
         }
 
         
@@ -355,17 +375,20 @@ void updateRecord(){
     fclose(temp);
 
     if (!found) {
-        printf("Record not found. Please check the ID.\n");
+        printf("\nRecord not found. Please check the ID.\n");
+        delay(2);
         // Delete temp file since nothing changed
         remove("temp.txt");
         return;
     }
 
     // Replace original file with temp file
-    remove("SampleRecord.txt");
-    rename("temp.txt", "SampleRecord.txt");
+    remove("student_records.txt");
+    rename("temp.txt", "student_records.txt");
 
+    delay(2);
     printf("\nRecord updated successfully!\n");
+    delay(1);
 
 }
 
@@ -380,6 +403,12 @@ void menu(){
     printf("5. Update a student record\n");
     printf("6. Exit\n");
 }
+
+void delay(int seconds){
+    time_t start = time(NULL);
+    while (time(NULL) - start < seconds);
+}
+
 
 int main() {
 
@@ -416,11 +445,14 @@ int main() {
             break;
 
         case 6:
+            delay(2);
             printf("\nExiting Program.....\n");
+            delay(1);
             return 0;
         
         default:
             printf("\nInvalid Choice! Please enter Valid Choice. \n");
+            delay(2);
             break;
         }
     }
