@@ -96,8 +96,8 @@ void displayRecord(){
     }
 
     printf("\n---Students Record---\n\n");
-    printf("ID | Name | Marks | Grade | Result\n");
-    printf("-----------------------------------\n");
+    printf("ID  | Name                 | Marks  | Grade | Result\n");
+    printf("------------------------------------------------------\n");
 
 
     int i = 0;
@@ -141,7 +141,7 @@ int searchByName(){
     // fgets(search, sizeof(search), stdin);
     scanf("%14s", search);
 
-    printf("\n");
+    // printf("\n");
 
     int i = 0;
     while(i<MAX && fscanf(fptr, "%d|%20[^|]|%f|%c|%9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
@@ -163,10 +163,11 @@ int searchByName(){
         // Print the records matching the given name
         if(result != NULL) {
             if (!found) {  // print header only once
-                printf("ID | Name | Marks | Grade | Result\n");
-                printf("----------------------------------\n");
+                printf("\n---Searched Record(s)---\n\n");
+                printf("ID  | Name                 | Marks  | Grade | Result\n");
+                printf("------------------------------------------------------\n");
             }
-            printf("%3d | %-15s | %6.2f | %c |%-5s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+            printf("%3d | %-20s | %6.2f | %c | %-5s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
             found = 1;
         }
 
@@ -200,7 +201,7 @@ int searchById() {
 
     int searchId = atoi(search);  // convert to integer once
 
-    printf("\n");
+    // printf("\n");
 
     // Loop to read each line of the file
     int i = 0;
@@ -216,10 +217,11 @@ int searchById() {
     for (int j = 0; j < i; j++) {
         if (s[j].id == searchId) {
             if (!found) {  // print header only once
-                printf("ID | Name | Marks | Grade | Result\n");
-                printf("----------------------------------\n");
+                printf("\n---Searched Record(s)---\n\n");
+                printf("ID  | Name                 | Marks  | Grade | Result\n");
+                printf("------------------------------------------------------\n");
             }
-            printf("%3d | %-15s | %6.2f | %c |%-5s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+            printf("%3d | %-20s | %6.2f | %c | %-5s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
             found = 1;
             break;  // stop after finding the exact ID
         }
@@ -386,7 +388,7 @@ void updateRecord(){
                 
             } while (strlen(temp) > 20);
 
-            strcpy(s[i].name, temp);
+            strcpy(stemp.name, temp);
             
             do {
                 printf("Student Marks (0-100): ");
