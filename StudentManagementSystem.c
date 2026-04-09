@@ -9,7 +9,7 @@ FILE *fptr;
 
 struct Student{
     int id;
-    char name[20];
+    char name[21];
     float marks;
     char grade;
     char result[10];
@@ -35,12 +35,23 @@ void readRecord(){
 
         if (s[i].id==999) break;
 
-        printf("Student Name: ");
-        scanf(" "); // consume leftover newline
-        fgets(s[i].name, sizeof(s[i].name), stdin);
+        char temp[100];
 
-        // remove trailing newline if exists
-        s[i].name[strcspn(s[i].name, "\n")] = 0;
+        do {
+            printf("Student Name: ");
+            scanf(" "); // consume leftover newline
+            fgets(temp, sizeof(temp), stdin);
+
+            // remove trailing newline if exists
+            temp[strcspn(temp, "\n")] = '\0';
+
+            if (strlen(temp) > 20) {
+                printf("Do not exceed 20 characters! Try again.\n");
+            }
+            
+        } while (strlen(temp) > 20);
+
+        strcpy(s[i].name, temp);
 
         do {
             printf("Student Marks (0-100): ");
@@ -58,7 +69,7 @@ void readRecord(){
         if(s[i].grade=='F') strcpy(s[i].result, "Fail");
         else strcpy(s[i].result, "Pass");
 
-        fprintf(fptr, "%-3d | %-20s | %6.2f | %c | %-4s\n", s[i].id, s[i].name, s[i].marks, s[i].grade, s[i].result);
+        fprintf(fptr, "%d|%s|%f|%c|%s\n", s[i].id, s[i].name, s[i].marks, s[i].grade, s[i].result);
 
         if (i == 0) {   // Prompt for first iteration 
             char yORn;
@@ -91,7 +102,7 @@ void displayRecord(){
 
     int i = 0;
 
-    while(i<MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
+    while(i<MAX && fscanf(fptr, "%d|%20[^|]|%f|%c|%9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
         
         int c;
         while ((c = fgetc(fptr)) != '\n' && c != EOF);
@@ -103,7 +114,7 @@ void displayRecord(){
     while (j<i)
     {
 
-        printf("%-3d | %-20s | %6.2f | %c | %-4s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+        printf("%3d | %-20s | %6.2f | %c | %-5s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
 
         j++;
     }
@@ -133,7 +144,7 @@ int searchByName(){
     printf("\n");
 
     int i = 0;
-    while(i<MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
+    while(i<MAX && fscanf(fptr, "%d|%20[^|]|%f|%c|%9s", &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5){
 
         int c;
         while ((c = fgetc(fptr)) != '\n' && c != EOF);
@@ -155,7 +166,7 @@ int searchByName(){
                 printf("ID | Name | Marks | Grade | Result\n");
                 printf("----------------------------------\n");
             }
-            printf("%-3d | %-20s | %6.2f | %c | %-4s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+            printf("%3d | %-15s | %6.2f | %c |%-5s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
             found = 1;
         }
 
@@ -193,7 +204,7 @@ int searchById() {
 
     // Loop to read each line of the file
     int i = 0;
-    while (i < MAX && fscanf(fptr, "%d | %19[^|] | %f | %c | %9s",
+    while (i < MAX && fscanf(fptr, "%d|%20[^|]|%f|%c|%9s",
                              &s[i].id, s[i].name, &s[i].marks, &s[i].grade, s[i].result) == 5) {
         int c;
         while ((c = fgetc(fptr)) != '\n' && c != EOF);
@@ -208,8 +219,7 @@ int searchById() {
                 printf("ID | Name | Marks | Grade | Result\n");
                 printf("----------------------------------\n");
             }
-            printf("%-3d | %-20s | %6.2f | %c | %-4s\n",
-                   s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
+            printf("%3d | %-15s | %6.2f | %c |%-5s\n", s[j].id, s[j].name, s[j].marks, s[j].grade, s[j].result);
             found = 1;
             break;  // stop after finding the exact ID
         }
@@ -264,7 +274,9 @@ void deleteRecord(){
         return;
     }
 
-    if (!searchRecord()) return;
+    //if (!searchRecord()) return;
+
+    displayRecord();
 
     // Ask which record to delete
     printf("\nEnter the student ID which you want to delete: ");
@@ -279,7 +291,7 @@ void deleteRecord(){
     }
 
     // Read each record and copy to temp if it does NOT match the ID
-    while (fscanf(fptr, "%d | %49[^|] | %f | %c | %9s",
+    while (fscanf(fptr, "%d|%20[^|]|%f|%c|%9s",
                 &stemp.id, stemp.name, &stemp.marks, &stemp.grade, stemp.result) == 5) {
         int c;
         while ((c = fgetc(fptr)) != '\n' && c != EOF);
@@ -291,7 +303,7 @@ void deleteRecord(){
             continue;   // skip writing this record to temp
         }
         // Write all other records to temp file
-        fprintf(temp, "%-3d | %-20s | %6.2f | %c | %-4s\n",
+        fprintf(temp, "%d|%s|%f|%c|%s\n",
                 stemp.id, stemp.name, stemp.marks, stemp.grade, stemp.result);
     }
 
@@ -327,7 +339,9 @@ void updateRecord(){
         return;
     }
 
-    if (!searchRecord()) return;
+    // if (!searchRecord()) return;
+
+    displayRecord();
 
     // Ask which record to delete
     printf("\nEnter the student ID which you want to update: ");
@@ -342,7 +356,7 @@ void updateRecord(){
     }
 
     // Read each record and copy to temp if it does NOT match the ID
-    while (fscanf(fptr, "%d | %49[^|] | %f | %c | %9s",
+    while (fscanf(fptr, "%d|%20[^|]|%f|%c|%9s",
                   &stemp.id, stemp.name, &stemp.marks, &stemp.grade, stemp.result) == 5) {
 
         int c;
@@ -383,7 +397,7 @@ void updateRecord(){
         
 
         // Write all other records to temp file
-        fprintf(temp, "%-3d | %-20s | %6.2f | %c | %-4s\n",
+        fprintf(temp, "%d|%s|%f|%c|%s\n",
                 stemp.id, stemp.name, stemp.marks, stemp.grade, stemp.result);
     }
 
