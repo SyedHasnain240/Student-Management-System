@@ -370,10 +370,23 @@ void updateRecord(){
             stemp.id = updateID;
             printf("Student ID: %d\n", stemp.id);
 
-            printf("Student Name: ");
-            scanf(" "); // consume leftover newline
-            fgets(stemp.name, sizeof(stemp.name), stdin);
-            stemp.name[strcspn(stemp.name, "\n")] = 0;
+            char temp[100];
+
+            do {
+                printf("Student Name: ");
+                scanf(" "); // consume leftover newline
+                fgets(temp, sizeof(temp), stdin);
+
+                // remove trailing newline if exists
+                temp[strcspn(temp, "\n")] = '\0';
+
+                if (strlen(temp) > 20) {
+                    printf("Do not exceed 20 characters! Try again.\n");
+                }
+                
+            } while (strlen(temp) > 20);
+
+            strcpy(s[i].name, temp);
             
             do {
                 printf("Student Marks (0-100): ");
